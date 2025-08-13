@@ -5,130 +5,128 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Kundan's URL Shortener</title>
 <style>
-  body {
-    margin: 0;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    background: url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e') center/cover no-repeat;
-  }
-  .card {
-    backdrop-filter: blur(20px);
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 20px;
-    padding: 30px;
-    width: 90%;
-    max-width: 400px;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.2);
-    text-align: center;
-    color: white;
-  }
-  h1 { font-size: 28px; margin-bottom: 10px; }
-  h3 { font-weight: normal; margin-bottom: 20px; }
-  p { font-size: 14px; opacity: 0.8; }
-  input {
-    width: 100%;
-    padding: 12px;
-    border-radius: 10px;
-    border: none;
-    margin-top: 10px;
-    font-size: 16px;
-  }
-  button {
-    padding: 10px 15px;
-    border-radius: 10px;
-    border: none;
-    margin: 10px 5px;
-    cursor: pointer;
-    font-weight: bold;
-  }
-  .ok { background: #4CAF50; color: white; }
-  .copy { background: #2196F3; color: white; }
-  .warning {
-    background: rgba(255, 0, 0, 0.8);
-    padding: 8px;
-    border-radius: 8px;
-    margin-top: 10px;
-    display: none;
-  }
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        background: url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e') no-repeat center center/cover;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+    }
+    .card {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(15px);
+        padding: 25px;
+        border-radius: 15px;
+        width: 90%;
+        max-width: 400px;
+        text-align: center;
+        color: white;
+        box-shadow: 0 4px 30px rgba(0,0,0,0.1);
+    }
+    input {
+        width: 100%;
+        padding: 10px;
+        margin: 8px 0;
+        border: none;
+        border-radius: 8px;
+        outline: none;
+    }
+    button {
+        padding: 10px;
+        width: 100%;
+        margin-top: 8px;
+        background: #4CAF50;
+        border: none;
+        color: white;
+        font-size: 16px;
+        border-radius: 8px;
+        cursor: pointer;
+    }
+    button.copy {
+        background: #007BFF;
+    }
+    .message {
+        display: none;
+        margin-top: 10px;
+        background: rgba(255,0,0,0.2);
+        padding: 5px;
+        border-radius: 5px;
+    }
 </style>
 </head>
 <body>
 
 <div class="card">
-  <h1>Hey 👋</h1>
-  <h3>Welcome to Kundan's URL Shortener Page</h3>
-  <p>You can paste your long URL and create your short URL with your own custom keyword.</p>
-  
-  <input type="text" id="longUrl" placeholder="Enter your long URL here">
-  <button onclick="showCustomBox()">Done</button>
-  
-  <div id="customBox" style="display:none;">
-    <input type="text" id="shortUrl" value="https://" />
-    <div>
-      <button class="ok" onclick="saveUrl()">OK</button>
-      <button class="copy" onclick="copyUrl()">Copy URL</button>
-    </div>
-  </div>
+    <h2>Hey 👋</h2>
+    <p>Welcome to Kundan's URL Shortener</p>
+    <p>You can paste your long URL and create your short URL with your own domain.</p>
 
-  <div class="warning" id="warningMsg">⚠ First tap OK to save in database!</div>
+    <input type="text" id="longUrl" placeholder="Enter your long URL here">
+    <input type="text" id="shortUrl" value="https://instagram.com./">
+    
+    <button id="okBtn">OK</button>
+    <button class="copy" id="copyBtn">Copy URL</button>
+
+    <div class="message" id="message"></div>
 </div>
 
-<!-- Firebase -->
-<script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js"></script>
-
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
 <script>
-  // Firebase config
-  const firebaseConfig = {
-    apiKey: "AIzaSyApWu4hBsGjUUO7u4w3BxhQneGI5HcZFwk",
-    authDomain: "shortyoururl-da0d2.firebaseapp.com",
-    projectId: "shortyoururl-da0d2",
-    storageBucket: "shortyoururl-da0d2.appspot.com",
-    messagingSenderId: "366187764080",
-    appId: "1:366187764080:web:7dad8f39288af2760157b5",
-    measurementId: "G-0JS4FTKTF7"
-  };
-  const app = firebase.initializeApp(firebaseConfig);
-  const db = firebase.firestore();
+    // Firebase Config
+    const firebaseConfig = {
+        apiKey: "AIzaSyApWu4hBsGjUUO7u4w3BxhQneGI5HcZFwk",
+        authDomain: "shortyoururl-da0d2.firebaseapp.com",
+        projectId: "shortyoururl-da0d2",
+        storageBucket: "shortyoururl-da0d2.appspot.com",
+        messagingSenderId: "366187764080",
+        appId: "1:366187764080:web:7dad8f39288af2760157b5",
+        measurementId: "G-0JS4FTKTF7"
+    };
 
-  let saved = false;
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
 
-  function showCustomBox() {
-    document.getElementById('customBox').style.display = 'block';
-  }
+    let savedUrl = "";
 
-  async function saveUrl() {
-    const longUrl = document.getElementById('longUrl').value.trim();
-    const shortUrlValue = document.getElementById('shortUrl').value.trim();
-    const slug = shortUrlValue.replace("https://", "");
+    document.getElementById("okBtn").addEventListener("click", async () => {
+        const longUrl = document.getElementById("longUrl").value.trim();
+        const shortFull = document.getElementById("shortUrl").value.trim();
+        const keyword = shortFull.replace("https://instagram.com./", "").trim();
 
-    if (!longUrl || !slug) {
-      alert("Please enter both long URL and custom text");
-      return;
-    }
+        if (!longUrl || !keyword) {
+            showMessage("Please enter both long URL and custom ending");
+            return;
+        }
 
-    await db.collection("urls").doc(slug).set({ longUrl });
-    saved = true;
-    alert("✅ Short link saved successfully!");
-  }
-
-  function copyUrl() {
-    if (!saved) {
-      document.getElementById('warningMsg').style.display = 'block';
-      setTimeout(() => {
-        document.getElementById('warningMsg').style.display = 'none';
-      }, 3000);
-      return;
-    }
-    const shortUrlValue = document.getElementById('shortUrl').value.trim();
-    navigator.clipboard.writeText(shortUrlValue).then(() => {
-      alert("📋 URL copied to clipboard!");
+        try {
+            await db.collection("urls").doc(keyword).set({ longUrl });
+            savedUrl = shortFull;
+            showMessage("✅ URL saved successfully!", "green");
+        } catch (err) {
+            showMessage("Error saving URL: " + err.message);
+        }
     });
-  }
-</script>
 
+    document.getElementById("copyBtn").addEventListener("click", () => {
+        if (!savedUrl) {
+            showMessage("⚠ First tap OK to save in database");
+            return;
+        }
+        navigator.clipboard.writeText(savedUrl).then(() => {
+            showMessage("📋 URL copied to clipboard!", "green");
+        });
+    });
+
+    function showMessage(msg, color = "red") {
+        const messageBox = document.getElementById("message");
+        messageBox.style.display = "block";
+        messageBox.style.background = color === "red" ? "rgba(255,0,0,0.2)" : "rgba(0,255,0,0.2)";
+        messageBox.innerText = msg;
+        setTimeout(() => messageBox.style.display = "none", 3000);
+    }
+</script>
 </body>
 </html>
