@@ -111,13 +111,12 @@
         document.getElementById("loading").style.display = "block";
 
         try {
-            await db.collection("urls").doc(keyword).set({ longUrl });
-            savedUrl = shortFull;
-            showMessage("✅ URL saved successfully!", "green");
-        } catch (err) {
-            showMessage("Error saving URL: " + err.message);
-        } finally {
-            document.getElementById("loading").style.display = "none";
+    await db.collection("urls").doc(keyword).set({ longUrl });
+    savedUrl = shortFull;
+    showMessage("✅ URL saved successfully!", "green");
+} catch (err) {
+    console.error("Firestore error:", err);
+    showMessage("Error: " + err.code + " - " + err.message);
         }
     });
 
