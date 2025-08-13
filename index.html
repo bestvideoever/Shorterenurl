@@ -5,164 +5,139 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Kundan's URL Shortener</title>
 <style>
-  body {
-    font-family: Arial, sans-serif;
-    margin: 0;
-    background: url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e') no-repeat center center/cover;
-    display: flex; justify-content: center; align-items: center;
-    height: 100vh;
-  }
-  .card {
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(15px);
-    padding: 25px; border-radius: 15px;
-    width: 90%; max-width: 400px; text-align: center; color: white;
-    box-shadow: 0 4px 30px rgba(0,0,0,0.1);
-  }
-  input {
-    width: 100%; padding: 10px; margin: 8px 0;
-    border: none; border-radius: 8px; outline: none;
-  }
-  button {
-    padding: 10px; width: 100%; margin-top: 8px;
-    background: #4CAF50; border: none; color: white; font-size: 16px;
-    border-radius: 8px; cursor: pointer;
-    transition: opacity .2s ease;
-  }
-  button.copy { background: #007BFF; }
-  button[disabled] { opacity: .6; cursor: not-allowed; }
-  .message {
-    display: none; margin-top: 10px;
-    background: rgba(255,0,0,0.2);
-    padding: 8px; border-radius: 5px; font-weight: 600;
-  }
-  .message.ok { background: rgba(0, 200, 0, 0.2); }
-  .spinner {
-    display: inline-block; width: 16px; height: 16px; margin-right: 8px;
-    border: 2px solid rgba(255,255,255,.6); border-top-color: transparent;
-    border-radius: 50%; animation: spin .8s linear infinite; vertical-align: -2px;
-  }
-  @keyframes spin { to { transform: rotate(360deg); } }
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        background: url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e') no-repeat center center/cover;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+    }
+    .card {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(15px);
+        padding: 25px;
+        border-radius: 15px;
+        width: 90%;
+        max-width: 400px;
+        text-align: center;
+        color: white;
+        box-shadow: 0 4px 30px rgba(0,0,0,0.1);
+    }
+    input {
+        width: 100%;
+        padding: 10px;
+        margin: 8px 0;
+        border: none;
+        border-radius: 8px;
+        outline: none;
+    }
+    button {
+        padding: 10px;
+        width: 100%;
+        margin-top: 8px;
+        background: #4CAF50;
+        border: none;
+        color: white;
+        font-size: 16px;
+        border-radius: 8px;
+        cursor: pointer;
+    }
+    button.copy {
+        background: #007BFF;
+    }
+    .message {
+        display: none;
+        margin-top: 10px;
+        background: rgba(255,0,0,0.2);
+        padding: 5px;
+        border-radius: 5px;
+    }
+    .loading {
+        display: none;
+        margin-top: 10px;
+        color: yellow;
+    }
 </style>
 </head>
 <body>
 
 <div class="card">
-  <h2>Hey 👋</h2>
-  <p>Welcome to Kundan's URL Shortener</p>
-  <p>You can paste your long URL and create your short URL with your own domain.</p>
+    <h2>Hey 👋</h2>
+    <p>Welcome to Kundan's URL Shortener</p>
+    <input type="text" id="longUrl" placeholder="Enter your long URL here">
+    <input type="text" id="shortUrl" value="https://instagram.com./">
+    
+    <button id="okBtn">OK</button>
+    <button class="copy" id="copyBtn">Copy URL</button>
 
-  <input type="text" id="longUrl" placeholder="Enter your long URL here">
-  <input type="text" id="shortUrl" value="https://instagram.com./">
-
-  <button id="okBtn">OK</button>
-  <button class="copy" id="copyBtn">Copy URL</button>
-
-  <div class="message" id="message"></div>
+    <div class="loading" id="loading">⏳ Saving, please wait...</div>
+    <div class="message" id="message"></div>
 </div>
 
-<!-- Firebase (Compat SDKs for simple script usage) -->
-<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<!-- Firebase compat SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
 
 <script>
-  // ---- Firebase Config (fixed storageBucket) ----
-  const firebaseConfig = {
-  apiKey: "AIzaSyApWu4hBsGjUUO7u4w3BxhQneGI5HcZFwk",
-  authDomain: "shortyoururl-da0d2.firebaseapp.com",
-  projectId: "shortyoururl-da0d2",
-  storageBucket: "shortyoururl-da0d2.appspot.com", // ✅ Correct format
-  messagingSenderId: "366187764080",
-  appId: "1:366187764080:web:7dad8f39288af2760157b5",
-  measurementId: "G-0JS4FTKTF7"
-};
+    // Firebase Config
+    const firebaseConfig = {
+        apiKey: "AIzaSyApWu4hBsGjUUO7u4w3BxhQneGI5HcZFwk",
+        authDomain: "shortyoururl-da0d2.firebaseapp.com",
+        projectId: "shortyoururl-da0d2",
+        storageBucket: "shortyoururl-da0d2.appspot.com",
+        messagingSenderId: "366187764080",
+        appId: "1:366187764080:web:7dad8f39288af2760157b5",
+        measurementId: "G-0JS4FTKTF7"
+    };
 
-  firebase.initializeApp(firebaseConfig);
-  const db = firebase.firestore();
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
 
-  const okBtn = document.getElementById("okBtn");
-  const copyBtn = document.getElementById("copyBtn");
-  const msgBox = document.getElementById("message");
+    let savedUrl = "";
 
-  let savedUrl = "";
-  let savedKeyword = "";
+    document.getElementById("okBtn").addEventListener("click", async () => {
+        const longUrl = document.getElementById("longUrl").value.trim();
+        const shortFull = document.getElementById("shortUrl").value.trim();
+        const keyword = shortFull.replace("https://instagram.com./", "").trim();
 
-  function showMsg(text, ok=false) {
-    msgBox.textContent = text;
-    msgBox.classList.toggle("ok", ok);
-    msgBox.style.display = "block";
-    clearTimeout(showMsg._t);
-    showMsg._t = setTimeout(() => (msgBox.style.display = "none"), 3000);
-  }
+        if (!longUrl || !keyword) {
+            showMessage("Please enter both long URL and custom ending");
+            return;
+        }
 
-  function setLoading(isLoading) {
-    if (isLoading) {
-      okBtn.disabled = true;
-      okBtn.innerHTML = '<span class="spinner"></span>Saving…';
-    } else {
-      okBtn.disabled = false;
-      okBtn.textContent = 'OK';
+        document.getElementById("loading").style.display = "block";
+
+        try {
+            await db.collection("urls").doc(keyword).set({ longUrl });
+            savedUrl = shortFull;
+            showMessage("✅ URL saved successfully!", "green");
+        } catch (err) {
+            showMessage("Error saving URL: " + err.message);
+        } finally {
+            document.getElementById("loading").style.display = "none";
+        }
+    });
+
+    document.getElementById("copyBtn").addEventListener("click", () => {
+        if (!savedUrl) {
+            showMessage("⚠ First tap OK to save in database");
+            return;
+        }
+        navigator.clipboard.writeText(savedUrl).then(() => {
+            showMessage("📋 URL copied to clipboard!", "green");
+        });
+    });
+
+    function showMessage(msg, color = "red") {
+        const messageBox = document.getElementById("message");
+        messageBox.style.display = "block";
+        messageBox.style.background = color === "red" ? "rgba(255,0,0,0.2)" : "rgba(0,255,0,0.2)";
+        messageBox.innerText = msg;
+        setTimeout(() => messageBox.style.display = "none", 3000);
     }
-  }
-
-  function isValidHttpUrl(url) {
-    try {
-      const u = new URL(url);
-      return u.protocol === "http:" || u.protocol === "https:";
-    } catch { return false; }
-  }
-
-  okBtn.addEventListener("click", async () => {
-    const longUrl = document.getElementById("longUrl").value.trim();
-    const shortFull = document.getElementById("shortUrl").value.trim();
-    const prefix = "https://instagram.com./";
-
-    if (!isValidHttpUrl(longUrl)) {
-      showMsg("Please enter a valid long URL starting with http or https");
-      return;
-    }
-    if (!shortFull.startsWith(prefix)) {
-      showMsg("Short URL must start with " + prefix);
-      return;
-    }
-
-    // keyword = everything after the fixed prefix
-    const rawKeyword = shortFull.slice(prefix.length).trim();
-    // basic sanitization (no spaces)
-    const keyword = rawKeyword.replace(/\s+/g, "");
-    if (!keyword) {
-      showMsg("Please add a custom keyword after " + prefix);
-      return;
-    }
-
-    try {
-      setLoading(true);
-      // save or overwrite this keyword's mapping
-      await db.collection("urls").doc(keyword).set({
-        longUrl: longUrl,
-        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-      });
-      savedUrl = shortFull;
-      savedKeyword = keyword;
-      showMsg("✅ URL saved successfully!", true);
-    } catch (err) {
-      console.error(err);
-      showMsg("Save failed: " + (err?.message || err));
-    } finally {
-      setLoading(false);
-    }
-  });
-
-  copyBtn.addEventListener("click", () => {
-    if (!savedUrl) {
-      showMsg("⚠ First tap OK to save in database");
-      return;
-    }
-    navigator.clipboard.writeText(savedUrl)
-      .then(() => showMsg("📋 URL copied to clipboard!", true))
-      .catch((e) => showMsg("Copy failed: " + e.message));
-  });
 </script>
-
 </body>
 </html>
