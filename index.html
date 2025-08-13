@@ -68,14 +68,14 @@
 <script>
   // ---- Firebase Config (fixed storageBucket) ----
   const firebaseConfig = {
-    apiKey: "AIzaSyApWu4hBsGjUUO7u4w3BxhQneGI5HcZFwk",
-    authDomain: "shortyoururl-da0d2.firebaseapp.com",
-    projectId: "shortyoururl-da0d2",
-    storageBucket: "shortyoururl-da0d2.appspot.com", // <- FIXED
-    messagingSenderId: "366187764080",
-    appId: "1:366187764080:web:7dad8f39288af2760157b5",
-    measurementId: "G-0JS4FTKTF7"
-  };
+  apiKey: "AIzaSyApWu4hBsGjUUO7u4w3BxhQneGI5HcZFwk",
+  authDomain: "shortyoururl-da0d2.firebaseapp.com",
+  projectId: "shortyoururl-da0d2",
+  storageBucket: "shortyoururl-da0d2.appspot.com", // ✅ Correct format
+  messagingSenderId: "366187764080",
+  appId: "1:366187764080:web:7dad8f39288af2760157b5",
+  measurementId: "G-0JS4FTKTF7"
+};
 
   firebase.initializeApp(firebaseConfig);
   const db = firebase.firestore();
