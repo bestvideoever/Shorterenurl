@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kundan's URL Shortener</title>
+<style>
+  body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', sans-serif;
+    background: url('https://images.unsplash.com/photo-1521747116042-5a810fda9664') no-repeat center center/cover;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
+  .card {
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    background-color: rgba(255, 255, 255, 0.15);
+    border-radius: 20px;
+    padding: 30px;
+    width: 90%;
+    max-width: 400px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+    text-align: center;
+    color: white;
+  }
+  h1 { font-size: 24px; margin-bottom: 10px; }
+  h2 { font-size: 18px; margin-bottom: 15px; font-weight: normal; }
+  p { font-size: 14px; opacity: 0.8; margin-bottom: 20px; }
+  input {
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+    border: none;
+    margin-bottom: 10px;
+    outline: none;
+    font-size: 14px;
+  }
+  button {
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+    border: none;
+    background: #00c6ff;
+    background: linear-gradient(90deg, #0072ff, #00c6ff);
+    color: white;
+    font-size: 14px;
+    cursor: pointer;
+    margin-bottom: 10px;
+  }
+  button:hover {
+    opacity: 0.9;
+  }
+  #shortUrlBox {
+    display: none;
+  }
+</style>
+</head>
+<body>
+
+<div class="card">
+  <h1>Hey 👋</h1>
+  <h2>Welcome to Kundan's URL Shortener</h2>
+  <p>You can paste your long URL and create your short URL with your own custom ending.</p>
+
+  <input type="text" id="longUrl" placeholder="Enter your Long URL here">
+  <button onclick="showShortUrlInput()">Done</button>
+
+  <div id="shortUrlBox">
+    <input type="text" id="customSlug" value="https://">
+    <button onclick="copyShortUrl()">Copy URL</button>
+  </div>
+</div>
+
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js"></script>
+
+<script>
+  // Your Firebase config
+  const firebaseConfig = {
+    apiKey: "AIzaSyApWu4hBsGjUUO7u4w3BxhQneGI5HcZFwk",
+    authDomain: "shortyoururl-da0d2.firebaseapp.com",
+    projectId: "shortyoururl-da0d2",
+    storageBucket: "shortyoururl-da0d2.appspot.com",
+    messagingSenderId: "366187764080",
+    appId: "1:366187764080:web:7dad8f39288af2760157b5",
+    measurementId: "G-0JS4FTKTF7"
+  };
+
+  // Init Firebase
+  const app = firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+
+  let savedLongUrl = "";
+
+  function showShortUrlInput() {
+    const longUrlInput = document.getElementById("longUrl").value.trim();
+    if (!longUrlInput.startsWith("http")) {
+      alert("Please enter a valid URL starting with http or https");
+      return;
+    }
+    savedLongUrl = longUrlInput;
+    document.getElementById("shortUrlBox").style.display = "block";
+  }
+
+  async function copyShortUrl() {
+    const slugFull = document.getElementById("customSlug").value.trim();
+    if (!slugFull.startsWith("https://")) {
+      alert("The short URL must start with https://");
+      return;
+    }
+
+    // Extract slug after https://
+    const slug = slugFull.replace("https://", "").trim();
+
+    await db.collection("shorturls").doc(slug).set({
+      longUrl: savedLongUrl
+    });
+
+    navigator.clipboard.writeText(slugFull).then(() => {
+      alert("Short URL copied to clipboard!");
+    });
+  }
+
+  // Redirect handler if someone visits directly with slug
+  window.onload = async () => {
+    const path = window.location.pathname.replace("/", "");
+    if (path) {
+      const doc = await db.collection("shorturls").doc(path).get();
+      if (doc.exists) {
+        window.location.href = doc.data().longUrl;
+      }
+    }
+  };
+</script>
+
+</body>
+</html>
