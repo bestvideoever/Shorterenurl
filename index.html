@@ -50,7 +50,6 @@
     .message {
         display: none;
         margin-top: 10px;
-        background: rgba(255,0,0,0.2);
         padding: 5px;
         border-radius: 5px;
     }
@@ -111,12 +110,14 @@
         document.getElementById("loading").style.display = "block";
 
         try {
-    await db.collection("urls").doc(keyword).set({ longUrl });
-    savedUrl = shortFull;
-    showMessage("✅ URL saved successfully!", "green");
-} catch (err) {
-    console.error("Firestore error:", err);
-    showMessage("Error: " + err.code + " - " + err.message);
+            await db.collection("urls").doc(keyword).set({ longUrl });
+            savedUrl = shortFull;
+            showMessage("✅ URL saved successfully!", "green");
+        } catch (err) {
+            console.error("Firestore error:", err);
+            showMessage("Error: " + err.message);
+        } finally {
+            document.getElementById("loading").style.display = "none";
         }
     });
 
